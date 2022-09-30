@@ -15,12 +15,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(),
       body: Container(
-        color: Colors.red,
         child: Column(
           children: [
             Text("首页"),
             MaterialButton(
-              onPressed: () => widget.onJumpToDetail!(VideoModel(111)),
+              onPressed: () => widget.onJumpToDetail!(VideoModel(1)),
               child: Text('详情'),
             ),
           ],

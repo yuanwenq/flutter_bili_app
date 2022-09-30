@@ -3,7 +3,7 @@ import 'package:flutter_bili_app/model/video_model.dart';
 
 class VideoDetailPage extends StatefulWidget {
   final VideoModel videoModel;
-  const VideoDetailPage({Key? key, required this.videoModel}) : super(key: key);
+  const VideoDetailPage(this.videoModel, {Key? key}) : super(key: key);
 
   @override
   State<VideoDetailPage> createState() => _VideoDetailPageState();

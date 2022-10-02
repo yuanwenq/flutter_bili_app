@@ -4,6 +4,7 @@ import 'package:flutter_bili_app/http/core/hi_net.dart';
 import 'package:flutter_bili_app/http/dao/login_dao.dart';
 import 'package:flutter_bili_app/http/request/notice_request.dart';
 import 'package:flutter_bili_app/http/request/test_request.dart';
+import 'package:flutter_bili_app/navigator/bottom_navigator.dart';
 import 'package:flutter_bili_app/navigator/hi_navigator.dart';
 import 'package:flutter_bili_app/page/home_page.dart';
 import 'package:flutter_bili_app/page/login_page.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_bili_app/page/registration_page.dart';
 import 'package:flutter_bili_app/page/video_detail_page.dart';
 import 'package:flutter_bili_app/util/color.dart';
 import 'package:flutter_bili_app/model/video_model.dart';
+import 'package:flutter_bili_app/util/toast_util.dart';
 import 'http/core/hi_error.dart';
 
 void main() {
@@ -36,7 +38,7 @@ class _BiliAppState extends State<BiliApp> {
           // 定义route
           var widget = snapshot.connectionState == ConnectionState.done
               ? Router(routerDelegate: _routeDelegate)
-              : Scaffold(
+              : const Scaffold(
                   body: Center(
                     child: CircularProgressIndicator(),
                   ),
@@ -54,7 +56,17 @@ class BiliRouteDelegate extends RouterDelegate<BiliRoutePath>
   @override
   final GlobalKey<NavigatorState> navigatorKey;
   // 为 Navigtor 设置一个key，必要的时候可以通过 navigatorKey.currentState 来获取到 NavigatorState 对象
-  BiliRouteDelegate() : navigatorKey = GlobalKey<NavigatorState>();
+  BiliRouteDelegate() : navigatorKey = GlobalKey<NavigatorState>() {
+    // 实现跳转逻辑
+    HiNavigator.getInstance().registerRouteJump(
+        RouteJumpListener(onJumpTo: (RouteStatus routeStatus, {Map? args}) {
+      _routeStatus = routeStatus;
+      if (routeStatus == RouteStatus.detail) {
+        videoModel = args!['videoMo'];
+      }
+      notifyListeners();
+    }));
+  }
 
   RouteStatus _routeStatus = RouteStatus.home;
   List<MaterialPage> pages = [];
@@ -74,48 +86,50 @@ class BiliRouteDelegate extends RouterDelegate<BiliRoutePath>
     if (routeStatus == RouteStatus.home) {
       // 跳转首页时将栈中其他页面进行出栈，因为首页不可回退
       pages.clear();
-      page = pageWrap(HomePage(
-        onJumpToDetail: (videoModel) {
-          this.videoModel = videoModel;
-          // TODO:通知 build 重新构建，和 setState() 效果一样，这里要深究
-          notifyListeners();
-        },
-      ));
+      page = pageWrap(BottomNavigator());
     } else if (routeStatus == RouteStatus.detail) {
       page = pageWrap(VideoDetailPage(videoModel!));
     } else if (routeStatus == RouteStatus.registration) {
-      page = pageWrap(RegistrationPage(
-        onJumpToLogin: () {
-          _routeStatus = RouteStatus.login;
-          notifyListeners();
-        },
-      ));
+      page = pageWrap(RegistrationPage());
     } else if (routeStatus == RouteStatus.login) {
-      page = pageWrap(LoginPage(
-        onSuccess: () {
-          _routeStatus = RouteStatus.home;
-          notifyListeners();
-        },
-        onJumpToRegistion: () {
-          _routeStatus = RouteStatus.registration;
-          notifyListeners();
-        },
-      ));
+      page = pageWrap(LoginPage());
     }
     // 重新创建一个数组，否则pages引用没有改变路由不会生效
     tempPages = [...tempPages, page];
-    pages = tempPages;
 
-    return Navigator(
-      key: navigatorKey,
-      pages: pages,
-      onPopPage: (route, result) {
-        // 在这里可以控制是否可以返回
-        if (!route.didPop(result)) {
-          return false;
-        }
-        return true;
-      },
+    /// 通知路由发生变化
+    HiNavigator.getInstance().notify(tempPages, pages);
+
+    pages = tempPages;
+    // fix: Andorid 物理返回键，无法返回上一页面问题
+    return WillPopScope(
+      onWillPop: () async =>
+          !(await navigatorKey.currentState?.maybePop() ?? false),
+      child: Navigator(
+        key: navigatorKey,
+        pages: pages,
+        onPopPage: (route, result) {
+          if (route.settings is MaterialPage) {
+            // 登录页未登录返回拦截
+            if ((route.settings as MaterialPage).child is LoginPage) {
+              if (!hasLogin) {
+                showWarnToast("请先登录");
+                return false;
+              }
+            }
+          }
+          // 执行返回操作，在这里可以控制是否可以返回
+          if (!route.didPop(result)) {
+            return false;
+          }
+          var tempPages = [...pages];
+          // 页面出栈
+          pages.removeLast();
+          // 通知路由发生变化
+          HiNavigator.getInstance().notify(pages, tempPages);
+          return true;
+        },
+      ),
     );
   }
 

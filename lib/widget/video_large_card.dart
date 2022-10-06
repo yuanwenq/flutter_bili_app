@@ -63,6 +63,8 @@ class VideoLargeCard extends StatelessWidget {
         children: [
           Text(
             videoModel.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 12, color: Colors.black87),
           ),
           _buildBottomContent()

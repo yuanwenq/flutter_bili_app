@@ -7,7 +7,6 @@ import 'package:flutter_bili_app/navigator/hi_navigator.dart';
 import 'package:flutter_bili_app/page/home_tab_page.dart';
 import 'package:flutter_bili_app/page/profile.dart';
 import 'package:flutter_bili_app/page/video_detail_page.dart';
-import 'package:flutter_bili_app/util/color.dart';
 import 'package:flutter_bili_app/util/toast_util.dart';
 import 'package:flutter_bili_app/util/view_util.dart';
 import 'package:flutter_bili_app/widget/hi_tab.dart';
@@ -106,7 +105,7 @@ class _HomePageState extends HiState<HomePage>
                 statusStyle: StatusStyle.DARK_CONTENT,
                 child: _appBar()),
             Container(
-              color: Colors.white,
+              decoration: bottomBoxShadow(),
               child: _tabBar(),
             ),
             Flexible(

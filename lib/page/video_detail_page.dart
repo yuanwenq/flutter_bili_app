@@ -1,11 +1,20 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bili_app/http/core/hi_error.dart';
+import 'package:flutter_bili_app/http/dao/favorite_dao.dart';
+import 'package:flutter_bili_app/http/dao/video_detail_dao.dart';
+import 'package:flutter_bili_app/model/video_detail_model.dart';
 import 'package:flutter_bili_app/model/video_model.dart';
+import 'package:flutter_bili_app/util/toast_util.dart';
 import 'package:flutter_bili_app/util/view_util.dart';
 import 'package:flutter_bili_app/widget/appbar_widget.dart';
+import 'package:flutter_bili_app/widget/expandable_content.dart';
 import 'package:flutter_bili_app/widget/hi_tab.dart';
 import 'package:flutter_bili_app/widget/navigation_bar.dart';
+import 'package:flutter_bili_app/widget/video_header.dart';
+import 'package:flutter_bili_app/widget/video_large_card.dart';
+import 'package:flutter_bili_app/widget/video_tool_bar.dart';
 import 'package:flutter_bili_app/widget/video_view.dart';
 
 class VideoDetailPage extends StatefulWidget {
@@ -20,11 +29,16 @@ class _VideoDetailPageState extends State<VideoDetailPage>
     with TickerProviderStateMixin {
   late TabController _controller;
   List tabs = ["简介", "评论2888"];
+  VideoDetailModel? videoDetailModel;
+  VideoModel? videoModel;
+  List<VideoModel> videoList = [];
 
   @override
   void initState() {
     super.initState();
     _controller = TabController(length: tabs.length, vsync: this);
+    videoModel = widget.videoModel;
+    _loadDetail();
   }
 
   @override
@@ -36,27 +50,38 @@ class _VideoDetailPageState extends State<VideoDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MediaQuery.removePadding(
-          removeTop: Platform.isIOS,
-          context: context,
-          child: Column(
-            children: [
-              NavigationBarPlus(
-                color: Colors.black,
-                statusStyle: StatusStyle.LIGHT_CONTENT,
-                height: Platform.isAndroid ? 0 : 46,
-              ),
-              _buildVideoView(),
-              _buildTabNavigation(),
-            ],
-          )),
-    );
+        body: MediaQuery.removePadding(
+            removeTop: Platform.isIOS,
+            context: context,
+            child: videoModel?.url != null
+                ? Column(
+                    children: [
+                      NavigationBarPlus(
+                        color: Colors.black,
+                        statusStyle: StatusStyle.LIGHT_CONTENT,
+                        height: Platform.isAndroid ? 0 : 46,
+                      ),
+                      _buildVideoView(),
+                      _buildTabNavigation(),
+                      Flexible(
+                          child: TabBarView(
+                        controller: _controller,
+                        children: [
+                          _buildDetailList(),
+                          Container(
+                            child: Text("敬请期待..."),
+                          )
+                        ],
+                      ))
+                    ],
+                  )
+                : Container()));
   }
 
   _buildVideoView() {
-    var model = widget.videoModel;
+    var model = videoModel;
     return VideoView(
-      model.url!,
+      model!.url!,
       cover: model.cover,
       overlayUi: videoAppBar(),
     );
@@ -98,5 +123,77 @@ class _VideoDetailPageState extends State<VideoDetailPage>
       }).toList(),
       controller: _controller,
     );
+  }
+
+  _buildDetailList() {
+    return ListView(
+      padding: EdgeInsets.all(0),
+      children: [...buildContents(), ..._buildVideoList()],
+    );
+  }
+
+  buildContents() {
+    return [
+      VideoHeader(
+        owner: videoModel!.owner,
+      ),
+      ExpandableContent(mo: videoModel!),
+      VideoToolBar(
+        detailModel: videoDetailModel,
+        videoModel: videoModel!,
+        onLike: _doLike,
+        onUnLike: _onUnLike,
+        onFavorite: _onFavorite,
+      )
+    ];
+  }
+
+  void _loadDetail() async {
+    try {
+      VideoDetailModel result = await VideoDetailDao.get(videoModel!.vid);
+      setState(() {
+        videoDetailModel = result;
+        // print('------videoInfo-----:${result.videoInfo.owner.name}');
+        videoModel = result.videoInfo;
+        videoList = result.videoList;
+      });
+    } on NeedAuth catch (e) {
+      print(e);
+      showWarnToast(e.message);
+    } on HiNetError catch (e) {
+      print(e);
+    }
+  }
+
+  void _doLike() {}
+
+  void _onUnLike() {}
+  // 收藏
+  void _onFavorite() async {
+    try {
+      var result = await FavoriteDao.favorite(
+          videoModel!.vid, !videoDetailModel!.isFavorite);
+      print(result);
+      videoDetailModel!.isFavorite = !videoDetailModel!.isFavorite;
+      if (videoDetailModel!.isFavorite) {
+        videoModel!.favorite += 1;
+      } else {
+        videoModel!.favorite -= 1;
+      }
+      setState(() {
+        videoDetailModel = videoDetailModel;
+        videoModel = videoModel;
+      });
+      showToast(result['msg']);
+    } on NeedAuth catch (e) {
+      print(e);
+      showWarnToast(e.message);
+    } on HiNetError catch (e) {
+      print(e);
+    }
+  }
+
+  _buildVideoList() {
+    return videoList.map((VideoModel mo) => VideoLargeCard(videoModel: mo));
   }
 }

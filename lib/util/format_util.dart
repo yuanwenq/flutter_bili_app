@@ -12,7 +12,7 @@ String durationTransform(int seconds) {
 String countFormat(int count) {
   String views = "";
   if (count > 9999) {
-    views = "${(count / 10000).toStringAsFixed(2)}";
+    views = "${(count / 10000).toStringAsFixed(2)}万";
   } else {
     views = count.toString();
   }

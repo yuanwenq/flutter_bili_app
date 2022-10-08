@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bili_app/barrage/barrage_input.dart';
+import 'package:flutter_bili_app/barrage/barrage_switch.dart';
+import 'package:flutter_bili_app/barrage/hi_barrage.dart';
 import 'package:flutter_bili_app/http/core/hi_error.dart';
 import 'package:flutter_bili_app/http/dao/favorite_dao.dart';
 import 'package:flutter_bili_app/http/dao/video_detail_dao.dart';
@@ -16,6 +19,7 @@ import 'package:flutter_bili_app/widget/video_header.dart';
 import 'package:flutter_bili_app/widget/video_large_card.dart';
 import 'package:flutter_bili_app/widget/video_tool_bar.dart';
 import 'package:flutter_bili_app/widget/video_view.dart';
+import 'package:flutter_overlay/flutter_overlay.dart';
 
 class VideoDetailPage extends StatefulWidget {
   final VideoModel videoModel;
@@ -32,6 +36,8 @@ class _VideoDetailPageState extends State<VideoDetailPage>
   VideoDetailModel? videoDetailModel;
   VideoModel? videoModel;
   List<VideoModel> videoList = [];
+  var _barrageKey = GlobalKey<HiBarrageState>();
+  bool _inoutShowing = false;
 
   @override
   void initState() {
@@ -83,7 +89,12 @@ class _VideoDetailPageState extends State<VideoDetailPage>
     return VideoView(
       model!.url!,
       cover: model.cover,
-      overlayUi: videoAppBar(),
+      overlayUI: videoAppBar(),
+      barrageUI: HiBarrage(
+        key: _barrageKey,
+        vid: model.vid,
+        autoPlay: true,
+      ),
     );
   }
 
@@ -94,21 +105,12 @@ class _VideoDetailPageState extends State<VideoDetailPage>
       shadowColor: Colors.grey[100],
       child: Container(
         alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 20, right: 20),
+        padding: const EdgeInsets.only(left: 10, right: 10),
         height: 39,
         color: Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _tabBar(),
-            Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Icon(
-                Icons.live_tv_rounded,
-                color: Colors.grey,
-              ),
-            )
-          ],
+          children: [_tabBar(), _buildBarrageBtn()],
         ),
       ),
     );
@@ -195,5 +197,30 @@ class _VideoDetailPageState extends State<VideoDetailPage>
 
   _buildVideoList() {
     return videoList.map((VideoModel mo) => VideoLargeCard(videoModel: mo));
+  }
+
+  _buildBarrageBtn() {
+    return BarrageSwitch(
+        inoutShowing: _inoutShowing,
+        onShowInput: () {
+          setState(() {
+            _inoutShowing = true;
+          });
+          HiOverlay.show(context, child: BarrageInput(onTabClose: () {
+            setState(() {
+              _inoutShowing = false;
+            });
+          })).then((value) {
+            print("---input: $value");
+            _barrageKey.currentState!.send(value!);
+          });
+        },
+        onBarrageSwitch: (open) {
+          if (open) {
+            _barrageKey.currentState!.play();
+          } else {
+            _barrageKey.currentState!.pause();
+          }
+        });
   }
 }

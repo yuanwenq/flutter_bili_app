@@ -258,6 +258,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  flutter_overlay:
+    dependency: "direct main"
+    description:
+      name: flutter_overlay
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   flutter_staggered_grid_view:
     dependency: "direct main"
     description:
@@ -890,7 +897,7 @@ packages:
     source: hosted
     version: "1.0.1"
   web_socket_channel:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: web_socket_channel
       url: "https://pub.dartlang.org"

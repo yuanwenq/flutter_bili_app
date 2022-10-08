@@ -14,7 +14,8 @@ class VideoView extends StatefulWidget {
   final bool autoPlay;
   final bool looping;
   final double aspectRatio; // 缩放比例
-  final Widget? overlayUi;
+  final Widget? overlayUI;
+  final Widget? barrageUI;
 
   const VideoView(this.url,
       {Key? key,
@@ -22,7 +23,8 @@ class VideoView extends StatefulWidget {
       this.autoPlay = false,
       this.looping = false,
       this.aspectRatio = 16 / 9,
-      this.overlayUi})
+      this.overlayUI,
+      this.barrageUI})
       : super(key: key);
 
   @override
@@ -62,7 +64,8 @@ class _VideoViewState extends State<VideoView> {
           showLoadingOnInitialize: false,
           showBigPlayIcon: false,
           bottomGradient: blackLinearGradient(),
-          overlayUI: widget.overlayUi,
+          overlayUI: widget.overlayUI,
+          barrageUI: widget.barrageUI,
         ),
         materialProgressColors: _progressColors);
     //fix iOS无法正常退出全屏播放问题

@@ -27,9 +27,9 @@ class _HomeTabPageState
   }
 
   _banner() {
-    return Padding(
-      padding: EdgeInsets.only(left: 0, right: 0),
-      child: HiBanner(widget.bannerList!),
+    return HiBanner(
+      widget.bannerList!,
+      padding: EdgeInsets.only(left: 5, right: 5),
     );
   }
 
@@ -37,7 +37,7 @@ class _HomeTabPageState
   // TODO: implement contentChild
   get contentChild => SingleChildScrollView(
         controller: scrollController,
-        padding: EdgeInsets.only(left: 10, top: 10, right: 10),
+        padding: const EdgeInsets.only(left: 10, top: 10, right: 10),
         physics: const AlwaysScrollableScrollPhysics(),
         child: StaggeredGrid.count(
           crossAxisCount: 2,
@@ -47,6 +47,12 @@ class _HomeTabPageState
           children: [
             if (widget.bannerList != null)
               StaggeredGridTile.fit(crossAxisCellCount: 2, child: _banner()),
+            if (widget.bannerList != null)
+              const StaggeredGridTile.fit(
+                  crossAxisCellCount: 2,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 5),
+                  )),
             ...dataList.map((VideoModel videoModel) {
               return StaggeredGridTile.fit(
                   crossAxisCellCount: 1,

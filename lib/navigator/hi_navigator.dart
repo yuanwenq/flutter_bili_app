@@ -3,6 +3,7 @@ import 'package:flutter_bili_app/navigator/bottom_navigator.dart';
 import 'package:flutter_bili_app/page/login_page.dart';
 import 'package:flutter_bili_app/page/registration_page.dart';
 import 'package:flutter_bili_app/page/video_detail_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 typedef RouteChangeListener = Function(
     RouteStatusInfo? current, RouteStatusInfo? pre);
@@ -66,6 +67,15 @@ class HiNavigator extends _RouteJumpListener {
   static HiNavigator getInstance() {
     _instance ??= HiNavigator._();
     return _instance!;
+  }
+
+  Future<bool> openH5(String url) async {
+    var result = await canLaunchUrl(Uri.parse(url));
+    if (result) {
+      return await launchUrl(Uri.parse(url));
+    } else {
+      return Future.value(false);
+    }
   }
 
   // 首页底部tab切换监听

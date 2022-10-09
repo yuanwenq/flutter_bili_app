@@ -9,6 +9,7 @@ import 'package:flutter_bili_app/http/dao/favorite_dao.dart';
 import 'package:flutter_bili_app/http/dao/video_detail_dao.dart';
 import 'package:flutter_bili_app/model/video_detail_model.dart';
 import 'package:flutter_bili_app/model/video_model.dart';
+import 'package:flutter_bili_app/provider/theme_provider.dart';
 import 'package:flutter_bili_app/util/toast_util.dart';
 import 'package:flutter_bili_app/util/view_util.dart';
 import 'package:flutter_bili_app/widget/appbar_widget.dart';
@@ -20,6 +21,7 @@ import 'package:flutter_bili_app/widget/video_large_card.dart';
 import 'package:flutter_bili_app/widget/video_tool_bar.dart';
 import 'package:flutter_bili_app/widget/video_view.dart';
 import 'package:flutter_overlay/flutter_overlay.dart';
+import 'package:provider/provider.dart';
 
 class VideoDetailPage extends StatefulWidget {
   final VideoModel videoModel;
@@ -68,7 +70,7 @@ class _VideoDetailPageState extends State<VideoDetailPage>
                         height: Platform.isAndroid ? 0 : 46,
                       ),
                       _buildVideoView(),
-                      _buildTabNavigation(),
+                      _buildTabNavigation(context),
                       Flexible(
                           child: TabBarView(
                         controller: _controller,
@@ -98,16 +100,19 @@ class _VideoDetailPageState extends State<VideoDetailPage>
     );
   }
 
-  _buildTabNavigation() {
+  _buildTabNavigation(BuildContext context) {
+    var themeProvider = context.watch<ThemeProvider>();
+    Color? color =
+        themeProvider.isDark() ? Colors.transparent : Colors.grey[100];
     // 使用 Material 实现阴影效果
     return Material(
       elevation: 5,
-      shadowColor: Colors.grey[100],
+      shadowColor: color,
       child: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 10, right: 10),
         height: 39,
-        color: Colors.white,
+        // color: Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [_tabBar(), _buildBarrageBtn()],

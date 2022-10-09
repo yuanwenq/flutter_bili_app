@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bili_app/navigator/bottom_navigator.dart';
+import 'package:flutter_bili_app/page/dark_mode_page.dart';
 import 'package:flutter_bili_app/page/login_page.dart';
 import 'package:flutter_bili_app/page/registration_page.dart';
 import 'package:flutter_bili_app/page/video_detail_page.dart';
@@ -25,7 +26,7 @@ int getPageIndex(List<MaterialPage> pages, RouteStatus routeStatus) {
 }
 
 /// 自定义路由封装，路由状态
-enum RouteStatus { login, registration, home, detail, unknown }
+enum RouteStatus { login, registration, home, detail, unknown, darkMode }
 
 /// 获取page对应的RouteStatus
 RouteStatus getStatus(MaterialPage page) {
@@ -35,6 +36,8 @@ RouteStatus getStatus(MaterialPage page) {
     return RouteStatus.registration;
   } else if (page.child is BottomNavigator) {
     return RouteStatus.home;
+  } else if (page.child is DarkModePage) {
+    return RouteStatus.darkMode;
   } else if (page.child is VideoDetailPage) {
     return RouteStatus.detail;
   } else {
@@ -67,6 +70,10 @@ class HiNavigator extends _RouteJumpListener {
   static HiNavigator getInstance() {
     _instance ??= HiNavigator._();
     return _instance!;
+  }
+
+  RouteStatusInfo getCurrent() {
+    return _current!;
   }
 
   Future<bool> openH5(String url) async {

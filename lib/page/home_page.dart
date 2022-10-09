@@ -7,13 +7,13 @@ import 'package:flutter_bili_app/navigator/hi_navigator.dart';
 import 'package:flutter_bili_app/page/home_tab_page.dart';
 import 'package:flutter_bili_app/page/profile.dart';
 import 'package:flutter_bili_app/page/video_detail_page.dart';
+import 'package:flutter_bili_app/provider/theme_provider.dart';
 import 'package:flutter_bili_app/util/toast_util.dart';
 import 'package:flutter_bili_app/util/view_util.dart';
 import 'package:flutter_bili_app/widget/hi_tab.dart';
 import 'package:flutter_bili_app/widget/loading_container.dart';
 import 'package:flutter_bili_app/widget/navigation_bar.dart';
-
-import 'package:underline_indicator/underline_indicator.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   final ValueChanged<int>? onJumpTo;
@@ -69,6 +69,13 @@ class _HomePageState extends HiState<HomePage>
     super.dispose();
   }
 
+  // 监听系统 Dark Mode 变化
+  @override
+  void didChangePlatformBrightness() {
+    context.read<ThemeProvider>().darkModeChange();
+    super.didChangePlatformBrightness();
+  }
+
   /// 监听应用生命周期变化
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -81,7 +88,9 @@ class _HomePageState extends HiState<HomePage>
         // fix Android 压后台，状态栏字体颜色变白问题
         if (_currentPage is! VideoDetailPage) {
           changeStatusBar(
-              color: Colors.white, statusStyle: StatusStyle.DARK_CONTENT);
+              color: Colors.white,
+              statusStyle: StatusStyle.DARK_CONTENT,
+              context: context);
         }
         break;
       case AppLifecycleState.paused: // 界面不可见，后台状态
@@ -105,7 +114,7 @@ class _HomePageState extends HiState<HomePage>
                 statusStyle: StatusStyle.DARK_CONTENT,
                 child: _appBar()),
             Container(
-              decoration: bottomBoxShadow(),
+              decoration: bottomBoxShadow(context),
               child: _tabBar(),
             ),
             Flexible(

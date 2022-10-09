@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bili_app/provider/theme_provider.dart';
+import 'package:flutter_bili_app/util/color.dart';
 import 'package:flutter_bili_app/util/view_util.dart';
+import 'package:provider/provider.dart';
 
-class NavigationBarPlus extends StatelessWidget {
+enum StatusStyle { LIGHT_CONTENT, DARK_CONTENT }
+
+///可自定义样式的沉浸式导航栏
+class NavigationBarPlus extends StatefulWidget {
   final StatusStyle statusStyle;
   final Color color;
   final double height;
@@ -16,21 +22,37 @@ class NavigationBarPlus extends StatelessWidget {
       : super(key: key);
 
   @override
+  _NavigationBarState createState() => _NavigationBarState();
+}
+
+class _NavigationBarState extends State<NavigationBarPlus> {
+  var _statusStyle;
+  var _color;
+
+  @override
   Widget build(BuildContext context) {
+    var themeProvider = context.watch<ThemeProvider>();
+    if (themeProvider.isDark()) {
+      _color = HiColor.dark_bg;
+      _statusStyle = StatusStyle.LIGHT_CONTENT;
+    } else {
+      _color = widget.color;
+      _statusStyle = widget.statusStyle;
+    }
     _statusBarInit();
-    // 状态栏高度
+    //状态栏高度
     var top = MediaQuery.of(context).padding.top;
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: top + height,
+      height: top + widget.height,
+      child: widget.child,
       padding: EdgeInsets.only(top: top),
-      decoration: BoxDecoration(color: color),
-      child: child,
+      decoration: BoxDecoration(color: _color),
     );
   }
 
   void _statusBarInit() {
-    // 沉浸式状态栏
-    changeStatusBar(color: color, statusStyle: statusStyle);
+    //沉浸式状态栏
+    changeStatusBar(color: _color, statusStyle: _statusStyle);
   }
 }

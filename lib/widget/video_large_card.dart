@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bili_app/model/video_model.dart';
 import 'package:flutter_bili_app/navigator/hi_navigator.dart';
+import 'package:flutter_bili_app/provider/theme_provider.dart';
 import 'package:flutter_bili_app/util/format_util.dart';
 import 'package:flutter_bili_app/util/view_util.dart';
+import 'package:provider/provider.dart';
 
 class VideoLargeCard extends StatelessWidget {
   final VideoModel videoModel;
@@ -21,7 +23,7 @@ class VideoLargeCard extends StatelessWidget {
         height: 106,
         decoration: BoxDecoration(border: borderLine(context)),
         child: Row(
-          children: [_itemImage(context), _buildContent()],
+          children: [_itemImage(context), _buildContent(context)],
         ),
       ),
     );
@@ -53,7 +55,9 @@ class VideoLargeCard extends StatelessWidget {
     );
   }
 
-  _buildContent() {
+  _buildContent(BuildContext context) {
+    var themeProvider = context.watch<ThemeProvider>();
+    Color color = themeProvider.isDark() ? Colors.white54 : Colors.black87;
     return Expanded(
         child: Container(
       padding: EdgeInsets.only(top: 5, left: 8, bottom: 5),
@@ -65,7 +69,7 @@ class VideoLargeCard extends StatelessWidget {
             videoModel.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: Colors.black87),
+            style: TextStyle(fontSize: 12, color: color),
           ),
           _buildBottomContent()
         ],

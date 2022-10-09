@@ -6,13 +6,17 @@ import 'package:flutter_bili_app/http/request/notice_request.dart';
 import 'package:flutter_bili_app/http/request/test_request.dart';
 import 'package:flutter_bili_app/navigator/bottom_navigator.dart';
 import 'package:flutter_bili_app/navigator/hi_navigator.dart';
+import 'package:flutter_bili_app/page/dark_mode_page.dart';
 import 'package:flutter_bili_app/page/home_page.dart';
 import 'package:flutter_bili_app/page/login_page.dart';
 import 'package:flutter_bili_app/page/registration_page.dart';
 import 'package:flutter_bili_app/page/video_detail_page.dart';
+import 'package:flutter_bili_app/provider/hi_provider.dart';
+import 'package:flutter_bili_app/provider/theme_provider.dart';
 import 'package:flutter_bili_app/util/color.dart';
 import 'package:flutter_bili_app/model/video_model.dart';
 import 'package:flutter_bili_app/util/toast_util.dart';
+import 'package:provider/provider.dart';
 import 'http/core/hi_error.dart';
 
 void main() {
@@ -43,9 +47,17 @@ class _BiliAppState extends State<BiliApp> {
                     child: CircularProgressIndicator(),
                   ),
                 );
-          return MaterialApp(
-            home: widget,
-            theme: ThemeData(primarySwatch: white),
+          return MultiProvider(
+            providers: topProviders,
+            child: Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+              return MaterialApp(
+                home: widget,
+                theme: themeProvider.getTheme(),
+                darkTheme: themeProvider.getTheme(isDarkMode: true),
+                themeMode: themeProvider.getThemeMode(),
+              );
+            }),
           );
         });
   }
@@ -87,6 +99,8 @@ class BiliRouteDelegate extends RouterDelegate<BiliRoutePath>
       // 跳转首页时将栈中其他页面进行出栈，因为首页不可回退
       pages.clear();
       page = pageWrap(BottomNavigator());
+    } else if (routeStatus == RouteStatus.darkMode) {
+      page = pageWrap(DarkModePage());
     } else if (routeStatus == RouteStatus.detail) {
       page = pageWrap(VideoDetailPage(videoModel!));
     } else if (routeStatus == RouteStatus.registration) {

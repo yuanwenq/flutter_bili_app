@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bili_app/http/core/hi_error.dart';
 import 'package:flutter_bili_app/http/core/hi_state.dart';
@@ -217,9 +219,14 @@ class _HomePageState extends HiState<HomePage>
               ),
             ),
           )),
-          Icon(
-            Icons.explore_outlined,
-            color: Colors.grey,
+          InkWell(
+            onTap: () {
+              _mockCrash();
+            },
+            child: Icon(
+              Icons.explore_outlined,
+              color: Colors.grey,
+            ),
           ),
           Padding(
             padding: EdgeInsets.only(left: 12),
@@ -231,5 +238,43 @@ class _HomePageState extends HiState<HomePage>
         ],
       ),
     );
+  }
+
+  /// 模拟Crash
+  void _mockCrash() async {
+    // 抛出异常
+    // throw StateError("This is adart exception");
+    // 同步异常
+    try {
+      throw StateError("This is adart exception");
+    } catch (e) {
+      print(e);
+    }
+    // 异步异常
+    Future.delayed(Duration(seconds: 1))
+        .then((value) =>
+            throw StateError("This is first Dart exception in Future"))
+        .catchError((e) => print(e));
+
+    // 异步转同步
+    try {
+      await Future.delayed(Duration(seconds: 1))
+          .then((value) =>
+              throw StateError("This is first Dart exception in Future"))
+          .catchError((e) => print(e));
+    } catch (e) {
+      print(e);
+    }
+
+    runZonedGuarded(() {
+      throw StateError("runZonedGuarded1: This is a dart exception");
+    }, (error, stack) => print(error));
+
+    runZonedGuarded(() {
+      Future.delayed(Duration(seconds: 1)).then((value) => throw StateError(
+          "runZonedGuarded2: This is first Dart exception in Future"));
+    }, (error, stack) => print(error));
+
+    throw StateError("mian.dart: This is second Dart exception");
   }
 }

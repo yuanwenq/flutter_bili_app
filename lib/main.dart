@@ -1,26 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bili_app/db/hi_cache.dart';
-import 'package:flutter_bili_app/http/core/hi_net.dart';
 import 'package:flutter_bili_app/http/dao/login_dao.dart';
-import 'package:flutter_bili_app/http/request/notice_request.dart';
-import 'package:flutter_bili_app/http/request/test_request.dart';
 import 'package:flutter_bili_app/navigator/bottom_navigator.dart';
 import 'package:flutter_bili_app/navigator/hi_navigator.dart';
 import 'package:flutter_bili_app/page/dark_mode_page.dart';
-import 'package:flutter_bili_app/page/home_page.dart';
 import 'package:flutter_bili_app/page/login_page.dart';
 import 'package:flutter_bili_app/page/registration_page.dart';
 import 'package:flutter_bili_app/page/video_detail_page.dart';
 import 'package:flutter_bili_app/provider/hi_provider.dart';
 import 'package:flutter_bili_app/provider/theme_provider.dart';
-import 'package:flutter_bili_app/util/color.dart';
 import 'package:flutter_bili_app/model/video_model.dart';
+import 'package:flutter_bili_app/util/hi_defend.dart';
 import 'package:flutter_bili_app/util/toast_util.dart';
 import 'package:provider/provider.dart';
-import 'http/core/hi_error.dart';
 
 void main() {
-  runApp(const BiliApp());
+  HiDefend().run(const BiliApp());
 }
 
 class BiliApp extends StatefulWidget {

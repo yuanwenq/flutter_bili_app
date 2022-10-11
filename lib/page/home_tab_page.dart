@@ -34,7 +34,6 @@ class _HomeTabPageState
   }
 
   @override
-  // TODO: implement contentChild
   get contentChild => SingleChildScrollView(
         controller: scrollController,
         padding: const EdgeInsets.only(left: 10, top: 10, right: 10),
